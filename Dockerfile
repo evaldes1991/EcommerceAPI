@@ -13,4 +13,6 @@ RUN dotnet publish "EcommerceAPI.csproj" -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
+# Create uploads directory (will be mounted as Railway Volume for persistence)
+RUN mkdir -p /app/wwwroot/uploads
 ENTRYPOINT ["dotnet", "EcommerceAPI.dll"]

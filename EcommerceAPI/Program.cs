@@ -59,6 +59,18 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+// Ensure wwwroot/uploads exists (important for Docker containers)
+var webRootPath = app.Environment.WebRootPath
+                  ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+var uploadsPath = Path.Combine(webRootPath, "uploads");
+Directory.CreateDirectory(uploadsPath);
+
+// If WebRootPath was null, set it so static files middleware works
+if (app.Environment.WebRootPath == null)
+{
+    app.Environment.WebRootPath = webRootPath;
+}
+
 app.UseStaticFiles();
 
 if (app.Environment.IsDevelopment())

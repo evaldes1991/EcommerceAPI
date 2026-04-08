@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-// S3 support removed per request; keep only local storage handling
 
 namespace EcommerceAPI.Controllers;
 
@@ -21,9 +20,11 @@ public class UploadController : ControllerBase
     {
         if (file == null || file.Length == 0) return BadRequest("No file uploaded.");
 
-        // Store file in wwwroot/uploads
-        var uploads = Path.Combine(_environment.WebRootPath, "uploads");
-        if (!Directory.Exists(uploads)) Directory.CreateDirectory(uploads);
+        // Use WebRootPath if available, otherwise fall back to app directory
+        var webRoot = _environment.WebRootPath
+                      ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var uploads = Path.Combine(webRoot, "uploads");
+        Directory.CreateDirectory(uploads);
 
         var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
         var filePath = Path.Combine(uploads, fileName);
@@ -33,12 +34,24 @@ public class UploadController : ControllerBase
             await file.CopyToAsync(stream);
         }
 
-        // Use configured BaseUrl (should be https public URL)
-        var baseUrl = _configuration["BaseUrl"]?.TrimEnd('/')
+        // BaseUrl priority: env var > appsettings > request URL
+        var baseUrl = Environment.GetEnvironmentVariable("BaseUrl")?.TrimEnd('/')
+                      ?? _configuration["BaseUrl"]?.TrimEnd('/')
                       ?? $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
 
-        var fileUrlLocal = $"{baseUrl}/uploads/{fileName}";
+        var fileUrl = $"{baseUrl}/uploads/{fileName}";
 
-        return Ok(new { url = fileUrlLocal });
+        return Ok(new { url = fileUrl });
+    }
+
+    [HttpGet("list")]
+    public IActionResult ListUploads()
+    {
+        var webRoot = _environment.WebRootPath
+                      ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+        var uploads = Path.Combine(webRoot, "uploads");
+        if (!Directory.Exists(uploads)) return Ok(Array.Empty<string>());
+        var files = Directory.GetFiles(uploads).Select(Path.GetFileName).ToArray();
+        return Ok(files);
     }
 }
