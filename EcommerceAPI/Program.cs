@@ -103,11 +103,49 @@ try
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         db.Database.Migrate();
         Console.WriteLine($"Database provider: {db.Database.ProviderName}");
+
+        // Fix old image URLs that point to local IP addresses
+        var newBase = Environment.GetEnvironmentVariable("BaseUrl")
+                      ?? builder.Configuration["BaseUrl"]
+                      ?? "";
+        if (!string.IsNullOrEmpty(newBase))
+        {
+            newBase = newBase.TrimEnd('/');
+
+            // Update Products.ImageUrl
+            var products = db.Products.Where(p => p.ImageUrl != null && p.ImageUrl != "" && !p.ImageUrl.StartsWith(newBase)).ToList();
+            foreach (var p in products)
+            {
+                // Extract just the /uploads/filename.ext part
+                var idx = p.ImageUrl!.IndexOf("/uploads/");
+                if (idx >= 0)
+                {
+                    p.ImageUrl = newBase + p.ImageUrl.Substring(idx);
+                }
+            }
+
+            // Update ProductImages.Url
+            var images = db.ProductImages.Where(i => i.Url != null && i.Url != "" && !i.Url.StartsWith(newBase)).ToList();
+            foreach (var img in images)
+            {
+                var idx = img.Url!.IndexOf("/uploads/");
+                if (idx >= 0)
+                {
+                    img.Url = newBase + img.Url.Substring(idx);
+                }
+            }
+
+            if (products.Any() || images.Any())
+            {
+                db.SaveChanges();
+                Console.WriteLine($"Updated {products.Count} product URLs and {images.Count} image URLs to use {newBase}");
+            }
+        }
     }
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"Migration error: {ex.Message}");
+    Console.WriteLine($"Startup error: {ex.Message}");
 }
 
 app.Run();
