@@ -6,9 +6,22 @@ using EcommerceAPI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// DbContext configuration (SQLite)
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+// DbContext configuration: use PostgreSQL (Railway) if DATABASE_URL is set, otherwise SQLite (local dev)
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+if (!string.IsNullOrEmpty(databaseUrl))
+{
+    // Railway provides DATABASE_URL as: postgresql://user:pass@host:port/dbname
+    var uri = new Uri(databaseUrl);
+    var userInfo = uri.UserInfo.Split(':');
+    var npgsqlConn = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseNpgsql(npgsqlConn));
+}
+else
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+}
 
 // Controllers
 builder.Services.AddControllers();
@@ -70,18 +83,19 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-// Ensure database is migrated on startup (creates sqlite file and applies migrations)
+// Ensure database is migrated on startup
 try
 {
     using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         db.Database.Migrate();
+        Console.WriteLine($"Database provider: {db.Database.ProviderName}");
     }
 }
-catch
+catch (Exception ex)
 {
-    // If migrations fail in the hosting environment, continue and let the logs show the error.
+    Console.WriteLine($"Migration error: {ex.Message}");
 }
 
 app.Run();

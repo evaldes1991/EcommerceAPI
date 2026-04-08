@@ -14,6 +14,22 @@ namespace EcommerceAPI.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "TEXT", nullable: false),
+                    DisplayOrder = table.Column<int>(type: "INTEGER", nullable: false),
+                    ImageUrl = table.Column<string>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Products",
                 columns: table => new
                 {
@@ -22,7 +38,12 @@ namespace EcommerceAPI.Migrations
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Description = table.Column<string>(type: "TEXT", nullable: false),
                     Price = table.Column<decimal>(type: "TEXT", nullable: false),
-                    ImageUrl = table.Column<string>(type: "TEXT", nullable: false)
+                    ImageUrl = table.Column<string>(type: "TEXT", nullable: false),
+                    StockQuantity = table.Column<int>(type: "INTEGER", nullable: false),
+                    SKU = table.Column<string>(type: "TEXT", nullable: false),
+                    IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -42,6 +63,50 @@ namespace EcommerceAPI.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CategoryProduct",
+                columns: table => new
+                {
+                    CategoriesId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ProductsId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CategoryProduct", x => new { x.CategoriesId, x.ProductsId });
+                    table.ForeignKey(
+                        name: "FK_CategoryProduct_Categories_CategoriesId",
+                        column: x => x.CategoriesId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CategoryProduct_Products_ProductsId",
+                        column: x => x.ProductsId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductImages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Url = table.Column<string>(type: "TEXT", nullable: false),
+                    ProductId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductImages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductImages_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -95,16 +160,18 @@ namespace EcommerceAPI.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Products",
-                columns: new[] { "Id", "Description", "ImageUrl", "Name", "Price" },
+                table: "Categories",
+                columns: new[] { "Id", "Description", "DisplayOrder", "ImageUrl", "Name" },
                 values: new object[,]
                 {
-                    { 1, "High-quality noise-canceling headphones.", "https://picsum.photos/400/400?random=1", "Premium Wireless Headphones", 250.00m },
-                    { 2, "Durable silicone smartphone case.", "https://picsum.photos/400/400?random=2", "Smartphone Case", 25.00m },
-                    { 3, "Fitness and health tracker smartwatch.", "https://picsum.photos/400/400?random=3", "Smartwatch", 150.00m },
-                    { 4, "Adjustable aluminum laptop stand.", "https://picsum.photos/400/400?random=4", "Laptop Stand", 45.00m },
-                    { 5, "RGB mechanical keyboard with tactile switches.", "https://picsum.photos/400/400?random=5", "Mechanical Keyboard", 120.00m }
+                    { 1, "Devices and gadgets", 0, "", "Electronics" },
+                    { 2, "Phone cases, stands, and more", 0, "", "Accessories" }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CategoryProduct_ProductsId",
+                table: "CategoryProduct",
+                column: "ProductsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_OrderId",
@@ -120,13 +187,27 @@ namespace EcommerceAPI.Migrations
                 name: "IX_Orders_UserId",
                 table: "Orders",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductImages_ProductId",
+                table: "ProductImages",
+                column: "ProductId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "CategoryProduct");
+
+            migrationBuilder.DropTable(
                 name: "OrderItems");
+
+            migrationBuilder.DropTable(
+                name: "ProductImages");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
 
             migrationBuilder.DropTable(
                 name: "Orders");

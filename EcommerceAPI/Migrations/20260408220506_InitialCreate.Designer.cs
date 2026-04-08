@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EcommerceAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260408172048_AddProductImages")]
-    partial class AddProductImages
+    [Migration("20260408220506_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,6 +48,10 @@ namespace EcommerceAPI.Migrations
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -63,6 +67,7 @@ namespace EcommerceAPI.Migrations
                             Id = 1,
                             Description = "Devices and gadgets",
                             DisplayOrder = 0,
+                            ImageUrl = "",
                             Name = "Electronics"
                         },
                         new
@@ -70,6 +75,7 @@ namespace EcommerceAPI.Migrations
                             Id = 2,
                             Description = "Phone cases, stands, and more",
                             DisplayOrder = 0,
+                            ImageUrl = "",
                             Name = "Accessories"
                         });
                 });
