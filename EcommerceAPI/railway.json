@@ -1,0 +1,8 @@
+{
+  "deploy": {
+    "dockerfilePath": "Dockerfile"
+  },
+  "build": {
+    "command": "docker build -t ecommerceapi ."
+  }
+}
