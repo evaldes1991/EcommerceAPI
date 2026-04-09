@@ -1,4 +1,6 @@
 using System.Text;
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.ApplicationModel.Core;
 
 namespace EcommerceApp.Services;
 
@@ -21,22 +23,55 @@ public class WhatsAppService : IWhatsAppService
 
     public async Task OpenChatAsync(string? message = null)
     {
-        var phone = PhoneNumber.Replace("+", "").Replace(" ", "").Replace("-", "");
-        // Try the native WhatsApp URI first (opens the app if installed), then fall back to web URL
-        var encoded = string.IsNullOrEmpty(message) ? string.Empty : $"&text={Uri.EscapeDataString(message)}";
-        var appUrl = new Uri($"whatsapp://send?phone={phone}{encoded}");
-        var webApiUrl = new Uri(string.IsNullOrEmpty(message)
+        var phone = PhoneNumber?.Replace("+", "").Replace(" ", "").Replace("-", "") ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(phone))
+        {
+            if (Application.Current?.MainPage != null)
+                await Application.Current.MainPage.DisplayAlert("Número no configurado", "El número de WhatsApp no está configurado. Por favor configura el número en la app.", "OK");
+            return;
+        }
+
+        var encodedText = string.IsNullOrEmpty(message) ? string.Empty : Uri.EscapeDataString(message);
+
+        var appUri = new Uri(string.IsNullOrEmpty(encodedText)
+            ? $"whatsapp://send?phone={phone}"
+            : $"whatsapp://send?phone={phone}&text={encodedText}");
+
+        var webUri = new Uri(string.IsNullOrEmpty(encodedText)
             ? $"https://api.whatsapp.com/send?phone={phone}"
-            : $"https://api.whatsapp.com/send?phone={phone}&text={Uri.EscapeDataString(message)}");
+            : $"https://api.whatsapp.com/send?phone={phone}&text={encodedText}");
 
         try
         {
-            await Launcher.OpenAsync(appUrl);
+            // prefer native app
+            if (await Launcher.CanOpenAsync(appUri))
+            {
+                await Launcher.OpenAsync(appUri);
+                return;
+            }
+
+            // fallback to web
+            if (await Launcher.CanOpenAsync(webUri))
+            {
+                await Launcher.OpenAsync(webUri);
+                return;
+            }
+
+            // neither available - copy web URL to clipboard and inform user
+            await Clipboard.SetTextAsync(webUri.ToString());
+            if (Application.Current?.MainPage != null)
+            {
+                await Application.Current.MainPage.DisplayAlert("WhatsApp no disponible", "No se pudo abrir WhatsApp ni la versión web en este dispositivo. Se copió la URL al portapapeles.", "OK");
+            }
         }
-        catch
+        catch (Exception ex)
         {
-            // fallback to web URL if native scheme is not available
-            await Launcher.OpenAsync(webApiUrl);
+            System.Diagnostics.Debug.WriteLine($"WhatsApp OpenChatAsync error: {ex}");
+            if (Application.Current?.MainPage != null)
+            {
+                await Application.Current.MainPage.DisplayAlert("Error", "No se pudo abrir WhatsApp.", "OK");
+            }
         }
     }
 
