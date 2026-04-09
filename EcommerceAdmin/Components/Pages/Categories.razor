@@ -1,6 +1,7 @@
 @page "/categories"
 @rendermode InteractiveServer
 @inject HttpClient Http
+@inject IJSRuntime JS
 
 <PageTitle>Manage Categories</PageTitle>
 
@@ -50,6 +51,7 @@ else
                     <td>@cat.Description</td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary" @onclick="() => EditCategory(cat)">Edit</button>
+                        <button class="btn btn-sm btn-outline-danger ms-2" @onclick="() => DeleteCategory(cat)">Delete</button>
                     </td>
                 </tr>
             }
@@ -231,4 +233,23 @@ else
     }
 
     private record UploadResult(string Url);
+
+    private async Task DeleteCategory(EcommerceAdmin.Models.Category cat)
+    {
+        if (cat == null) return;
+
+        var confirmed = await JS.InvokeAsync<bool>("confirm", $"¿Eliminar la categoría '{cat.Name}'? Esta acción no se puede deshacer.");
+        if (!confirmed) return;
+
+        var response = await Http.DeleteAsync($"api/categories/{cat.Id}");
+        if (response.IsSuccessStatusCode)
+        {
+            categoriesList?.Remove(cat);
+            StateHasChanged();
+        }
+        else
+        {
+            // Optionally show an error
+        }
+    }
 }
