@@ -11,7 +11,7 @@ public interface IWhatsAppService
 
 public class WhatsAppService : IWhatsAppService
 {
-    private const string DefaultPhone = "5350000000"; // Replace with your number
+    private const string DefaultPhone = "+19792691852"; // Replace with your number
 
     public string PhoneNumber
     {
@@ -22,11 +22,22 @@ public class WhatsAppService : IWhatsAppService
     public async Task OpenChatAsync(string? message = null)
     {
         var phone = PhoneNumber.Replace("+", "").Replace(" ", "").Replace("-", "");
-        var url = string.IsNullOrEmpty(message)
-            ? $"https://wa.me/{phone}"
-            : $"https://wa.me/{phone}?text={Uri.EscapeDataString(message)}";
+        // Try the native WhatsApp URI first (opens the app if installed), then fall back to web URL
+        var encoded = string.IsNullOrEmpty(message) ? string.Empty : $"&text={Uri.EscapeDataString(message)}";
+        var appUrl = new Uri($"whatsapp://send?phone={phone}{encoded}");
+        var webApiUrl = new Uri(string.IsNullOrEmpty(message)
+            ? $"https://api.whatsapp.com/send?phone={phone}"
+            : $"https://api.whatsapp.com/send?phone={phone}&text={Uri.EscapeDataString(message)}");
 
-        await Launcher.OpenAsync(new Uri(url));
+        try
+        {
+            await Launcher.OpenAsync(appUrl);
+        }
+        catch
+        {
+            // fallback to web URL if native scheme is not available
+            await Launcher.OpenAsync(webApiUrl);
+        }
     }
 
     public async Task SendCheckoutAsync(List<Models.CartItem> items, decimal total)
