@@ -13,7 +13,9 @@ public class RealApiService : IApiService
     public RealApiService()
     {
         // Prefer environment variable, then Preferences, otherwise use Railway internal domain
-        var env = Environment.GetEnvironmentVariable("API_BASE_URL");
+        var env = Environment.GetEnvironmentVariable("API_BASE_URL")
+                  ?? Environment.GetEnvironmentVariable("BASE_URL")
+                  ?? Environment.GetEnvironmentVariable("BaseUrl");
         var pref = string.Empty;
         try { pref = Preferences.Default.Get("ApiBaseUrl", string.Empty); } catch { }
 
@@ -22,7 +24,7 @@ public class RealApiService : IApiService
         else if (!string.IsNullOrWhiteSpace(pref))
             _baseUrl = pref.TrimEnd('/');
         else
-            _baseUrl = "http://ecommerceapi.railway.internal";
+            _baseUrl = "https://ecommerceapi-production-68f0.up.railway.app";
 
         _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
         _httpClient.DefaultRequestHeaders.Add("Accept", "application/json");

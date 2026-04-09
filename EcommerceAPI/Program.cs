@@ -105,7 +105,11 @@ try
         Console.WriteLine($"Database provider: {db.Database.ProviderName}");
 
         // Fix old image URLs that point to local IP addresses
-        var newBase = Environment.GetEnvironmentVariable("BaseUrl")
+        var newBase = Environment.GetEnvironmentVariable("API_BASE_URL")
+                      ?? Environment.GetEnvironmentVariable("BASE_URL")
+                      ?? Environment.GetEnvironmentVariable("BaseUrl")
+                      ?? builder.Configuration["API_BASE_URL"]
+                      ?? builder.Configuration["BASE_URL"]
                       ?? builder.Configuration["BaseUrl"]
                       ?? "";
         if (!string.IsNullOrEmpty(newBase))

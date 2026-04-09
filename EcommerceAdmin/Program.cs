@@ -6,8 +6,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// API base URL: prefer environment variable, otherwise default to the deployed Railway internal domain
-var adminApiBase = Environment.GetEnvironmentVariable("API_BASE_URL") ?? "http://ecommerceapi.railway.internal";
+// API base URL: prefer environment variable, otherwise default to the deployed Railway public domain
+var adminApiBase = Environment.GetEnvironmentVariable("API_BASE_URL")
+                   ?? Environment.GetEnvironmentVariable("BASE_URL")
+                   ?? Environment.GetEnvironmentVariable("BaseUrl")
+                   ?? "https://ecommerceapi-production-68f0.up.railway.app";
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(adminApiBase) });
 
 var app = builder.Build();
