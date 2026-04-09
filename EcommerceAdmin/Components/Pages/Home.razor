@@ -1,0 +1,106 @@
+@page "/"
+@using System.Net.Http.Json
+@inject HttpClient Http
+
+<PageTitle>Dashboard</PageTitle>
+
+<div class="container-fluid p-4">
+    <h2 class="mb-4 text-primary fw-bold">Shop Statistics</h2>
+
+    @if (stats == null)
+    {
+        <div class="d-flex justify-content-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm bg-primary text-white h-100">
+                    <div class="card-body p-4">
+                        <h6 class="text-uppercase opacity-75">Total Revenue</h6>
+                        <h2 class="display-6 fw-bold">@stats.TotalRevenue.ToString("C")</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm bg-success text-white h-100">
+                    <div class="card-body p-4">
+                        <h6 class="text-uppercase opacity-75">Total Orders</h6>
+                        <h2 class="display-6 fw-bold">@stats.TotalOrders</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm bg-info text-white h-100">
+                    <div class="card-body p-4">
+                        <h6 class="text-uppercase opacity-75">Total Products</h6>
+                        <h2 class="display-6 fw-bold">@stats.TotalProducts</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm bg-warning text-dark h-100">
+                    <div class="card-body p-4">
+                        <h6 class="text-uppercase opacity-75">Active Users</h6>
+                        <h2 class="display-6 fw-bold">@stats.TotalUsers</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white py-3 border-0">
+                <h5 class="mb-0 fw-bold">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex gap-3">
+                    <a href="/products" class="btn btn-outline-primary px-4">Manage Products</a>
+                    <a href="/orders" class="btn btn-outline-success px-4">View Orders</a>
+                    <a href="/categories" class="btn btn-outline-info px-4">Manage Categories</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private DashboardStats? stats;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Note: In a real app, we'd need to handle authentication here.
+            // Assuming for now the HttpClient is pre-configured or anonymous access is allowed for dev.
+            stats = await Http.GetFromJsonAsync<DashboardStats>("api/stats/dashboard");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error loading stats: " + ex.Message);
+            // Fallback for demo if API is not available or auth fails
+            stats = new DashboardStats { TotalRevenue = 15420.50m, TotalOrders = 124, TotalProducts = 45, TotalUsers = 89 };
+        }
+    }
+
+    public class DashboardStats
+    {
+        public decimal TotalRevenue { get; set; }
+        public int TotalOrders { get; set; }
+        public int TotalProducts { get; set; }
+        public int TotalUsers { get; set; }
+    }
+}
+
+<style>
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+</style>

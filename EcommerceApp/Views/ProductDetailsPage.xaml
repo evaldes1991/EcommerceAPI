@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:vm="clr-namespace:EcommerceApp.ViewModels"
+             x:Class="EcommerceApp.Views.ProductDetailsPage"
+             BackgroundColor="White"
+             Title="Details">
+
+
+    <ScrollView>
+        <VerticalStackLayout Padding="0,0,0,20" Spacing="20">
+            <!-- Header with Cart -->
+            <Grid ColumnDefinitions="*, Auto" Padding="20,10">
+                <Grid Grid.Column="1" WidthRequest="44" HeightRequest="44" VerticalOptions="Center">
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToCartCommand}" />
+                    </Grid.GestureRecognizers>
+                    <Label Text="🛒" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                    <Border IsVisible="{Binding CartItemCount, Converter={StaticResource IntToBoolConverter}, FallbackValue=False}"
+                            WidthRequest="18" HeightRequest="18" StrokeShape="RoundRectangle 9" BackgroundColor="Red" StrokeThickness="0"
+                            HorizontalOptions="End" VerticalOptions="Start" TranslationX="5" TranslationY="-5">
+                        <Label Text="{Binding CartItemCount}" TextColor="White" FontSize="10" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+                </Grid>
+            </Grid>
+
+            <VerticalStackLayout Padding="20,0" Spacing="20">
+            <!-- Product Images Carousel -->
+            <Grid RowDefinitions="300, Auto" Padding="20,0">
+                <CarouselView Grid.Row="0"
+                              ItemsSource="{Binding Product.Images}"
+                              IndicatorView="indicatorView"
+                              HeightRequest="300">
+                    <CarouselView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Stroke="{StaticResource Tertiary}" BackgroundColor="{StaticResource Secondary}" StrokeShape="RoundRectangle 16" Padding="20">
+                                <Image Source="{Binding Url}" Aspect="AspectFit" />
+                            </Border>
+                        </DataTemplate>
+                    </CarouselView.ItemTemplate>
+                    <CarouselView.EmptyView>
+                        <Border Stroke="{StaticResource Tertiary}" BackgroundColor="{StaticResource Secondary}" StrokeShape="RoundRectangle 16" Padding="20">
+                            <Image Source="{Binding Product.ImageUrl}" Aspect="AspectFit" HeightRequest="300" />
+                        </Border>
+                    </CarouselView.EmptyView>
+                </CarouselView>
+                <IndicatorView x:Name="indicatorView"
+                               Grid.Row="1"
+                               IndicatorColor="LightGray"
+                               SelectedIndicatorColor="{StaticResource Primary}"
+                               HorizontalOptions="Center"
+                               Margin="0,10,0,0" />
+            </Grid>
+
+            <!-- Product Info -->
+            <Label Text="{Binding Product.Name}" TextColor="{StaticResource Primary}" FontSize="28" FontAttributes="Bold" />
+            <Label Text="{Binding Product.Price, StringFormat='{0:C}'}" TextColor="{StaticResource TextColor}" FontSize="22" FontAttributes="Bold" />
+
+            <Label Text="Description" TextColor="{StaticResource SubTextColor}" FontSize="18" FontAttributes="Bold" Margin="0,10,0,0"/>
+            <Label Text="{Binding Product.Description}" TextColor="{StaticResource TextColor}" FontSize="16" />
+
+            <Button Text="Add to Cart" 
+                    Command="{Binding AddToCartCommand}" 
+                    BackgroundColor="{StaticResource Primary}" 
+                    TextColor="White" 
+                    FontSize="18"
+                    FontAttributes="Bold"
+                    CornerRadius="25"
+                    HeightRequest="50"
+                    Margin="0,30,0,0" />
+        </VerticalStackLayout>
+    </VerticalStackLayout>
+</ScrollView>
+</ContentPage>

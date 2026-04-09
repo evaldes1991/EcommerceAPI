@@ -1,0 +1,234 @@
+@page "/categories"
+@rendermode InteractiveServer
+@inject HttpClient Http
+
+<PageTitle>Manage Categories</PageTitle>
+
+<h1>Manage Categories</h1>
+
+@if (categoriesList == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="alert alert-info py-2 mb-3">
+        <i class="bi bi-info-circle"></i> Tip: Arrastra las categorías hacia arriba o abajo para cambiar su orden en la aplicación móvil.
+    </div>
+
+    <table class="table table-hover mt-4">
+        <thead class="table-dark">
+            <tr>
+                <th style="width: 50px"></th>
+                <th style="width:60px">Img</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var cat in categoriesList)
+            {
+                <tr draggable="true" 
+                    @ondragstart="@(() => HandleDragStart(cat))"
+                    @ondragover:preventDefault
+                    @ondrop="@(() => HandleDrop(cat))"
+                    class="@(draggingCategory?.Id == cat.Id ? "table-active" : "")"
+                    style="cursor: grab;">
+                    <td><span class="bi bi-grip-vertical text-muted"></span></td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(cat.ImageUrl))
+                        {
+                            <img src="@cat.ImageUrl" style="width:44px;height:44px;object-fit:cover;border-radius:50%;border:2px solid #ddd;" />
+                        }
+                        else
+                        {
+                            <div style="width:44px;height:44px;border-radius:50%;background:#e9ecef;display:flex;align-items:center;justify-content:center;font-weight:bold;color:#6c757d;">@(cat.Name.Length > 0 ? cat.Name[0].ToString() : "?")</div>
+                        }
+                    </td>
+                    <td><span class="fw-bold">@cat.Name</span></td>
+                    <td>@cat.Description</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" @onclick="() => EditCategory(cat)">Edit</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="d-flex justify-content-end mb-4">
+        <button class="btn btn-success" @onclick="SaveOrder" disabled="@isSavingOrder">
+            @if (isSavingOrder)
+            {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            Guardar Orden
+        </button>
+    </div>
+
+    <hr class="my-4" />
+
+    <div class="card bg-light border-0 shadow-sm">
+        <div class="card-body">
+            <h3 class="card-title mb-4">@(isEditing ? "Edit Category" : "Create New Category")</h3>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Name</label>
+                    <input class="form-control" @bind="currentCategory.Name" />
+                </div>
+                <div class="col-md-8 mb-3">
+                    <label class="form-label">Description</label>
+                    <input class="form-control" @bind="currentCategory.Description" />
+                </div>
+                <!-- Category Icon Image -->
+                <div class="col-md-12 mb-3">
+                    <label class="form-label fw-bold">Imagen de categoría (icono circular)</label>
+                    <div class="d-flex align-items-center gap-3">
+                        @if (!string.IsNullOrEmpty(currentCategory.ImageUrl))
+                        {
+                            <img src="@currentCategory.ImageUrl" style="width:60px;height:60px;object-fit:cover;border-radius:50%;border:2px solid #dee2e6;" />
+                        }
+                        <div class="flex-grow-1">
+                            <InputFile OnChange="OnCategoryImageSelected" accept="image/*" class="form-control" />
+                            @if (isCategoryUploading)
+                            {
+                                <div class="d-flex align-items-center mt-2 text-primary">
+                                    <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                                    <span>Uploading...</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    <small class="text-muted">Esta imagen se mostrará en el acordeón circular de la app móvil.</small>
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <button class="btn btn-primary px-4" @onclick="SaveCategory">
+                    @(isEditing ? "Update Category" : "Save Category")
+                </button>
+                @if (isEditing)
+                {
+                    <button class="btn btn-secondary ms-2" @onclick="CancelEdit">Cancel</button>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<EcommerceAdmin.Models.Category>? categoriesList;
+    private EcommerceAdmin.Models.Category currentCategory = new();
+    private EcommerceAdmin.Models.Category? draggingCategory;
+    private bool isEditing = false;
+    private bool isSavingOrder = false;
+    private bool isCategoryUploading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategories();
+    }
+
+    private async Task LoadCategories()
+    {
+        var result = await Http.GetFromJsonAsync<EcommerceAdmin.Models.Category[]>("api/categories");
+        categoriesList = result?.ToList();
+    }
+
+    private void HandleDragStart(EcommerceAdmin.Models.Category category)
+    {
+        draggingCategory = category;
+    }
+
+    private void HandleDrop(EcommerceAdmin.Models.Category landingCategory)
+    {
+        if (draggingCategory == null || draggingCategory.Id == landingCategory.Id || categoriesList == null) return;
+
+        int oldIndex = categoriesList.IndexOf(draggingCategory);
+        int newIndex = categoriesList.IndexOf(landingCategory);
+
+        categoriesList.RemoveAt(oldIndex);
+        categoriesList.Insert(newIndex, draggingCategory);
+        
+        draggingCategory = null;
+        StateHasChanged();
+    }
+
+    private async Task SaveOrder()
+    {
+        if (categoriesList == null) return;
+        
+        isSavingOrder = true;
+        var ids = categoriesList.Select(c => c.Id).ToList();
+        var response = await Http.PostAsJsonAsync("api/categories/reorder", ids);
+        
+        isSavingOrder = false;
+        if (response.IsSuccessStatusCode)
+        {
+            // Optional: Show success notification
+        }
+    }
+
+    private void EditCategory(EcommerceAdmin.Models.Category cat)
+    {
+        currentCategory = new EcommerceAdmin.Models.Category 
+        {
+            Id = cat.Id, Name = cat.Name, Description = cat.Description,
+            DisplayOrder = cat.DisplayOrder, ImageUrl = cat.ImageUrl
+        };
+        isEditing = true;
+    }
+
+    private async Task SaveCategory()
+    {
+        if (isEditing)
+        {
+            var response = await Http.PutAsJsonAsync($"api/categories/{currentCategory.Id}", currentCategory);
+            if (response.IsSuccessStatusCode)
+            {
+                CancelEdit();
+                await LoadCategories();
+            }
+        }
+        else
+        {
+            var response = await Http.PostAsJsonAsync("api/categories", currentCategory);
+            if (response.IsSuccessStatusCode)
+            {
+                CancelEdit();
+                await LoadCategories();
+            }
+        }
+    }
+
+    private void CancelEdit()
+    {
+        currentCategory = new();
+        isEditing = false;
+    }
+
+    private async Task OnCategoryImageSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file == null) return;
+        isCategoryUploading = true;
+        StateHasChanged();
+        try
+        {
+            using var content = new MultipartFormDataContent();
+            var stream = file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024);
+            var fileContent = new StreamContent(stream);
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+            content.Add(fileContent, "file", file.Name);
+            var response = await Http.PostAsync("api/upload", content);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<UploadResult>();
+                if (result?.Url != null) currentCategory.ImageUrl = result.Url;
+            }
+        }
+        finally { isCategoryUploading = false; StateHasChanged(); }
+    }
+
+    private record UploadResult(string Url);
+}

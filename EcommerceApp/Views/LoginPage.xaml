@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EcommerceApp.Views.LoginPage"
+             BackgroundColor="White">
+    
+    <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">
+        <Label Text="Sign In" TextColor="{StaticResource Primary}" FontSize="36" FontAttributes="Bold" HorizontalOptions="Center" />
+        <Label Text="Welcome to Fyu Shop" TextColor="{StaticResource SubTextColor}" FontSize="14" HorizontalOptions="Center" Margin="0,0,0,20"/>
+        
+        <Border Stroke="{StaticResource Tertiary}" BackgroundColor="{StaticResource Secondary}" StrokeShape="RoundRectangle 12" Padding="15,5">
+            <Entry Placeholder="Email" Text="{Binding Email}" TextColor="{StaticResource TextColor}" PlaceholderColor="{StaticResource SubTextColor}" Keyboard="Email" />
+        </Border>
+        
+        <Border Stroke="{StaticResource Tertiary}" BackgroundColor="{StaticResource Secondary}" StrokeShape="RoundRectangle 12" Padding="15,5">
+            <Entry Placeholder="Password" Text="{Binding Password}" IsPassword="True" TextColor="{StaticResource TextColor}" PlaceholderColor="{StaticResource SubTextColor}" />
+        </Border>
+        
+        <Button Text="Login" Command="{Binding LoginCommand}" BackgroundColor="{StaticResource Primary}" TextColor="White" FontSize="18" FontAttributes="Bold" CornerRadius="12" HeightRequest="50" Margin="0,20,0,0"/>
+
+        <HorizontalStackLayout HorizontalOptions="Center" Spacing="5">
+            <Label Text="Don't have an account?" TextColor="{StaticResource TextColor}" VerticalOptions="Center" />
+            <Button Text="Sign up" Clicked="OnSignUpClicked" TextColor="{StaticResource Primary}" BackgroundColor="Transparent" FontSize="14" VerticalOptions="Center" />
+        </HorizontalStackLayout>
+        
+        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" HorizontalOptions="Center" />
+    </VerticalStackLayout>
+</ContentPage>

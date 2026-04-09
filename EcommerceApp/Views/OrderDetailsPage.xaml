@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:EcommerceApp.ViewModels"
+             xmlns:models="clr-namespace:EcommerceApp.Models"
+             x:Class="EcommerceApp.Views.OrderDetailsPage"
+             Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="15">
+            <Border StrokeShape="RoundRectangle 10" Padding="15" BackgroundColor="{StaticResource Secondary}">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="{Binding Order.Id, StringFormat='Order #{0}'}" FontSize="22" FontAttributes="Bold" />
+                    <Label Text="{Binding Order.Status}" FontSize="18" TextColor="{StaticResource Primary}" FontAttributes="Bold" />
+                    <Label Text="{Binding Order.OrderDate, StringFormat='Placed on: {0:f}'}" TextColor="{StaticResource SubTextColor}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="Items" TextColor="{StaticResource TextColor}" FontSize="18" FontAttributes="Bold" Margin="0,10,0,0" />
+
+            <CollectionView ItemsSource="{Binding Order.Items}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:OrderItem">
+                        <Grid ColumnDefinitions="Auto, *, Auto" Padding="10" ColumnSpacing="15">
+                            <Border Stroke="{StaticResource Tertiary}" StrokeShape="RoundRectangle 8" Padding="2">
+                                <Image Source="{Binding Product.ImageUrl}" WidthRequest="60" HeightRequest="60" Aspect="AspectFill" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                <Label Text="{Binding Product.Name}" TextColor="{StaticResource TextColor}" FontAttributes="Bold" />
+                                <Label Text="{Binding Quantity, StringFormat='Quantity: {0}'}" TextColor="{StaticResource SubTextColor}" FontSize="12" />
+                            </VerticalStackLayout>
+                            <Label Grid.Column="2" Text="{Binding TotalPrice, StringFormat='{0:C}'}" TextColor="{StaticResource TextColor}" VerticalOptions="Center" FontAttributes="Bold" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Line Stroke="{StaticResource Tertiary}" X2="400" HorizontalOptions="Fill" Margin="0,10" />
+
+            <Grid ColumnDefinitions="*, Auto">
+                <Label Text="Total Amount balance" TextColor="{StaticResource TextColor}" FontSize="20" FontAttributes="Bold" />
+                <Label Grid.Column="1" Text="{Binding Order.TotalAmount, StringFormat='{0:C}'}" TextColor="{StaticResource Primary}" FontSize="20" FontAttributes="Bold" />
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

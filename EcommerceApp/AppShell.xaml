@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="EcommerceApp.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:EcommerceApp"
+    xmlns:views="clr-namespace:EcommerceApp.Views"
+    Title="EcommerceApp">
+
+    <TabBar>
+        <Tab Title="Products" Icon="home.png">
+            <ShellContent Route="ProductsPage" ContentTemplate="{DataTemplate views:ProductsPage}" />
+        </Tab>
+        <Tab Title="Cart" Icon="cart.png">
+            <ShellContent Route="CartPage" ContentTemplate="{DataTemplate views:CartPage}" />
+        </Tab>
+        <Tab Title="Orders" Icon="orders.png">
+            <ShellContent Route="OrdersPage" ContentTemplate="{DataTemplate views:OrdersPage}" />
+        </Tab>
+        <Tab Title="Profile" Icon="profile.png">
+            <ShellContent Route="ProfilePage" ContentTemplate="{DataTemplate views:ProfilePage}" />
+        </Tab>
+    </TabBar>
+
+</Shell>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:EcommerceApp.ViewModels"
+             x:Class="EcommerceApp.Views.OrdersPage"
+             Title="{Binding Title}">
+    
+    <Grid>
+        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" VerticalOptions="Center" HorizontalOptions="Center" ZIndex="1" />
+        
+        <CollectionView ItemsSource="{Binding Orders}" Margin="10">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Margin="0,0,0,10" Padding="15" StrokeShape="RoundRectangle 8">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:OrdersViewModel}}, Path=GoToDetailsCommand}" 
+                                                  CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="5">
+                            <Grid ColumnDefinitions="*, Auto">
+                                <Label Text="{Binding Id, StringFormat='Order #{0}'}" FontAttributes="Bold" FontSize="16" Grid.Column="0" />
+                                <Label Text="{Binding Status}" FontAttributes="Bold" TextColor="{StaticResource Primary}" Grid.Column="1" />
+                            </Grid>
+                            <Label Text="{Binding OrderDate, StringFormat='Placed on: {0:MMM dd, yyyy}'}" TextColor="{StaticResource SubTextColor}" FontSize="12" />
+                            <Label Text="{Binding TotalAmount, StringFormat='Total: {0:C}'}" FontAttributes="Bold" TextColor="{StaticResource TextColor}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+
+</ContentPage>

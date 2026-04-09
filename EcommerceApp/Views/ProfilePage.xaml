@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:EcommerceApp.ViewModels"
+             x:Class="EcommerceApp.Views.ProfilePage"
+             Title="My Profile"
+             BackgroundColor="{StaticResource Secondary}">
+
+    <VerticalStackLayout Padding="30" Spacing="25" VerticalOptions="Center">
+        <Border StrokeShape="RoundRectangle 50" HeightRequest="100" WidthRequest="100" 
+                HorizontalOptions="Center" Padding="0">
+            <Image Source="dotnet_bot.png" Aspect="AspectFill" />
+        </Border>
+
+        <Label Text="{Binding UserProfile.Email}"
+               FontSize="24"
+               FontAttributes="Bold"
+               HorizontalOptions="Center" />
+
+        <Label Text="{Binding UserProfile.Role, StringFormat='Account Type: {0}'}"
+               FontSize="16"
+               HorizontalOptions="Center"
+               TextColor="{StaticResource Gray500}" />
+
+        <ActivityIndicator IsRunning="{Binding IsBusy}" 
+                           HorizontalOptions="Center" 
+                           Color="{StaticResource Primary}" />
+
+        <Button Text="Logout"
+                Command="{Binding LogoutCommand}"
+                BackgroundColor="#FF3B30"
+                TextColor="White"
+                FontAttributes="Bold"
+                CornerRadius="22"
+                HeightRequest="44"
+                Margin="0,20,0,0" />
+    </VerticalStackLayout>
+</ContentPage>

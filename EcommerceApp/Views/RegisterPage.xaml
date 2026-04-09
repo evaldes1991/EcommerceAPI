@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EcommerceApp.Views.RegisterPage"
+             BackgroundColor="White">
+    
+    <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="Center">
+        <Label Text="Register" TextColor="{StaticResource Primary}" FontSize="36" FontAttributes="Bold" HorizontalOptions="Center" />
+        <Label Text="Create a new account" TextColor="{StaticResource SubTextColor}" FontSize="14" HorizontalOptions="Center" Margin="0,0,0,20"/>
+        
+        <Border Stroke="{StaticResource Tertiary}" BackgroundColor="{StaticResource Secondary}" StrokeShape="RoundRectangle 12" Padding="15,5">
+            <Entry Placeholder="Email" Text="{Binding Email}" TextColor="{StaticResource TextColor}" PlaceholderColor="{StaticResource SubTextColor}" Keyboard="Email" />
+        </Border>
+        
+        <Border Stroke="{StaticResource Tertiary}" BackgroundColor="{StaticResource Secondary}" StrokeShape="RoundRectangle 12" Padding="15,5">
+            <Entry Placeholder="Password" Text="{Binding Password}" IsPassword="True" TextColor="{StaticResource TextColor}" PlaceholderColor="{StaticResource SubTextColor}" />
+        </Border>
+        
+        <Button Text="Sign Up" Command="{Binding RegisterCommand}" BackgroundColor="{StaticResource Primary}" TextColor="White" FontSize="18" FontAttributes="Bold" CornerRadius="25" HeightRequest="50" Margin="0,20,0,0"/>
+
+        <Button Text="Back to Login" Clicked="OnBackClicked" TextColor="{StaticResource Primary}" BackgroundColor="Transparent" FontSize="14" HorizontalOptions="Center" />
+        
+        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="{StaticResource Primary}" HorizontalOptions="Center" />
+    </VerticalStackLayout>
+</ContentPage>

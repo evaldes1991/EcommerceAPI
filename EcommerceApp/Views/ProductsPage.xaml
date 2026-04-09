@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:EcommerceApp.Models"
+             xmlns:vm="clr-namespace:EcommerceApp.ViewModels"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="EcommerceApp.Views.ProductsPage"
+             BackgroundColor="White"
+             Title="">
+
+
+    <RefreshView IsRefreshing="{Binding IsBusy}" Command="{Binding LoadProductsCommand}">
+        <ScrollView>
+            <VerticalStackLayout Padding="0,0,0,30" Spacing="25">
+                
+                <!-- Header Section -->
+                <Grid ColumnDefinitions="Auto, *, Auto" Padding="20,20,20,0">
+                    <Button Grid.Column="0" Text="{Binding AuthButtonText}" Command="{Binding HandleAuthCommand}" 
+                            BackgroundColor="Transparent" TextColor="{StaticResource Primary}" 
+                            BorderColor="{StaticResource Primary}" BorderWidth="1" CornerRadius="18"
+                            FontAttributes="Bold" FontSize="14" Padding="15,0" HeightRequest="36" VerticalOptions="Center" />
+
+                    <Label Grid.Column="1" Text="Ecosystem" TextColor="{StaticResource TextColor}" FontSize="18" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" />
+
+                    <Grid Grid.Column="2" WidthRequest="44" HeightRequest="44" VerticalOptions="Center">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToCartCommand}" />
+                        </Grid.GestureRecognizers>
+                        <Label Text="🛒" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center" />
+                        <Border IsVisible="{Binding CartItemCount, Converter={StaticResource IntToBoolConverter}, FallbackValue=False}"
+                                WidthRequest="18" HeightRequest="18" StrokeShape="RoundRectangle 9" BackgroundColor="Red" StrokeThickness="0"
+                                HorizontalOptions="End" VerticalOptions="Start" TranslationX="5" TranslationY="-5">
+                            <Label Text="{Binding CartItemCount}" TextColor="White" FontSize="10" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <!-- Search Bar -->
+                <Border Margin="20,0" StrokeThickness="0" BackgroundColor="{StaticResource Tertiary}" StrokeShape="RoundRectangle 12" Padding="10,0">
+                    <SearchBar Placeholder="Search ecosystem..." 
+                               Text="{Binding SearchText}" 
+                               TextColor="{StaticResource TextColor}"
+                               PlaceholderColor="{StaticResource SubTextColor}"
+                               CancelButtonColor="{StaticResource Primary}" 
+                               BackgroundColor="Transparent" />
+                </Border>
+
+                <!-- Error Message -->
+                <Label Text="{Binding ErrorMessage}" TextColor="Red" FontSize="12" HorizontalOptions="Center" IsVisible="{Binding HasError}" Padding="20,0" />
+
+                <!-- Category Icon Row -->
+                <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never" Padding="12,0">
+                    <HorizontalStackLayout BindableLayout.ItemsSource="{Binding Categories}" Spacing="4">
+                        <BindableLayout.ItemTemplate>
+                            <DataTemplate x:DataType="models:Category">
+                                <VerticalStackLayout WidthRequest="76" Spacing="6" HorizontalOptions="Center">
+                                    <VerticalStackLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductsViewModel}}, Path=SeeAllByCategoryIdCommand}" CommandParameter="{Binding .}" />
+                                    </VerticalStackLayout.GestureRecognizers>
+
+                                    <!-- Circular icon: image if set, else first letter -->
+                                    <Grid WidthRequest="64" HeightRequest="64" HorizontalOptions="Center">
+                                        <Border WidthRequest="64" HeightRequest="64"
+                                                StrokeShape="Ellipse"
+                                                StrokeThickness="0"
+                                                BackgroundColor="{StaticResource Tertiary}">
+                                            <Label Text="{Binding Name[0]}"
+                                                   FontSize="26" FontAttributes="Bold"
+                                                   TextColor="{StaticResource Primary}"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center" />
+                                        </Border>
+                                        <!-- Image overlaid on top, only visible when ImageUrl is set -->
+                                        <Border WidthRequest="64" HeightRequest="64"
+                                                StrokeShape="Ellipse"
+                                                StrokeThickness="2"
+                                                Stroke="{StaticResource Tertiary}"
+                                                IsVisible="{Binding ImageUrl, Converter={StaticResource StringNotEmptyConverter}}">
+                                            <Image Source="{Binding ImageUrl}" Aspect="AspectFill" />
+                                        </Border>
+                                    </Grid>
+
+                                    <!-- Category Name -->
+                                    <Label Text="{Binding Name}"
+                                           FontSize="11" TextColor="#444"
+                                           HorizontalOptions="Center"
+                                           HorizontalTextAlignment="Center"
+                                           MaxLines="2"
+                                           LineBreakMode="TailTruncation" />
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </BindableLayout.ItemTemplate>
+                    </HorizontalStackLayout>
+                </ScrollView>
+
+                <!-- Regular Categories (Horizontal Carousels) -->
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding GroupedProducts}" Spacing="35" Padding="0,10">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="vm:CategoryGroup">
+                            <VerticalStackLayout Spacing="12">
+                                <!-- Category Header -->
+                                <Grid ColumnDefinitions="*, Auto" Padding="20,0">
+                                    <Label Text="{Binding Name}" TextColor="#444444" FontSize="18" FontAttributes="Bold" VerticalOptions="Center" />
+                                    <Label Grid.Column="1" Text="Ver todo →" TextColor="{StaticResource Primary}" FontSize="13" FontAttributes="Bold" VerticalOptions="Center">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductsViewModel}}, Path=SeeAllCommand}" CommandParameter="{Binding .}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                </Grid>
+
+                                <!-- Grid of Products (Max 6) -->
+                                <FlexLayout BindableLayout.ItemsSource="{Binding .}" 
+                                            Wrap="Wrap" 
+                                            JustifyContent="SpaceBetween" 
+                                            Padding="20,0">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="models:Product">
+                                            <Border Margin="0,0,0,12" 
+                                                    Padding="0" 
+                                                    FlexLayout.Basis="32%"
+                                                    HeightRequest="190" 
+                                                    StrokeShape="RoundRectangle 12" 
+                                                    StrokeThickness="1" 
+                                                    Stroke="#F0F0F0" 
+                                                    BackgroundColor="White">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ProductsViewModel}}, Path=GoToDetailsCommand}" CommandParameter="{Binding .}" />
+                                                </Border.GestureRecognizers>
+                                                <Grid RowDefinitions="95, Auto" Padding="0">
+                                                    <!-- Image -->
+                                                    <Border Grid.Row="0" Margin="4" StrokeShape="RoundRectangle 10" StrokeThickness="0" BackgroundColor="#F9F9F9">
+                                                        <Image Source="{Binding ImageUrl}" Aspect="AspectFit" />
+                                                    </Border>
+                                                    
+                                                    <!-- Info -->
+                                                    <VerticalStackLayout Grid.Row="1" Padding="8,4,8,8" Spacing="2">
+                                                        <Label Text="{Binding Name}" TextColor="#444444" FontSize="11" MaxLines="2" LineBreakMode="TailTruncation" HeightRequest="32" />
+                                                        <Label Text="{Binding Price, StringFormat='{0:C}'}" TextColor="Black" FontSize="13" FontAttributes="Bold" />
+                                                    </VerticalStackLayout>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </FlexLayout>
+                                
+                                <!-- Separator -->
+                                <BoxView HeightRequest="1" Color="#F5F5F5" Margin="20,5,20,0" />
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+                
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+</ContentPage>
