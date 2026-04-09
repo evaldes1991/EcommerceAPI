@@ -14,6 +14,7 @@
 
             <toolkit:IntToBoolConverter x:Key="IntToBoolConverter" />
             <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter" />
+            <converters:StringFirstCharConverter x:Key="StringFirstCharConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

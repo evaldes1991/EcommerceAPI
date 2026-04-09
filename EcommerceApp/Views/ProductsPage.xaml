@@ -65,7 +65,7 @@
                                                 StrokeShape="Ellipse"
                                                 StrokeThickness="0"
                                                 BackgroundColor="{StaticResource Tertiary}">
-                                            <Label Text="{Binding Name[0]}"
+                                            <Label Text="{Binding Name, Converter={StaticResource StringFirstCharConverter}}"
                                                    FontSize="26" FontAttributes="Bold"
                                                    TextColor="{StaticResource Primary}"
                                                    HorizontalOptions="Center"
