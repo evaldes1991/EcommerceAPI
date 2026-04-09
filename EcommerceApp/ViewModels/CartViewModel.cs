@@ -9,15 +9,17 @@ public partial class CartViewModel : BaseViewModel
 {
     private readonly ICartService _cartService;
     private readonly IApiService _apiService;
+    private readonly IWhatsAppService _whatsAppService;
 
     public ObservableCollection<CartItem> CartItems { get; } = new();
 
     public decimal TotalAmount => _cartService.GetTotal();
 
-    public CartViewModel(ICartService cartService, IApiService apiService)
+    public CartViewModel(ICartService cartService, IApiService apiService, IWhatsAppService whatsAppService)
     {
         _cartService = cartService;
         _apiService = apiService;
+        _whatsAppService = whatsAppService;
         Title = "Shopping Cart";
     }
 
@@ -30,20 +32,15 @@ public partial class CartViewModel : BaseViewModel
         IsBusy = true;
         try
         {
-            var order = await _apiService.PlaceOrderAsync(items);
+            await _whatsAppService.SendCheckoutAsync(items, TotalAmount);
             _cartService.ClearCart();
             LoadCartItems();
-            
-            if (Application.Current?.Windows.Count > 0)
-            {
-                await Application.Current.Windows[0].Page!.DisplayAlertAsync("Success", $"Order {order.Id} placed successfully!", "OK");
-            }
         }
         catch (Exception ex)
         {
             if (Application.Current?.Windows.Count > 0)
             {
-                await Application.Current.Windows[0].Page!.DisplayAlertAsync("Checkout Error", ex.Message, "OK");
+                await Application.Current.Windows[0].Page!.DisplayAlertAsync("Error", ex.Message, "OK");
             }
         }
         finally

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="EcommerceApp.Controls.FloatingWhatsApp"
+             InputTransparent="True"
+             CascadeInputTransparent="False"
+             HorizontalOptions="Fill"
+             VerticalOptions="Fill">
+
+    <ImageButton Source="whatsapp.png"
+                 WidthRequest="56" HeightRequest="56"
+                 CornerRadius="28"
+                 BackgroundColor="#25D366"
+                 Padding="14"
+                 HorizontalOptions="End"
+                 VerticalOptions="End"
+                 Margin="0,0,18,18"
+                 Clicked="OnWhatsAppClicked"
+                 InputTransparent="False">
+        <ImageButton.Shadow>
+            <Shadow Brush="Black" Offset="2,4" Radius="8" Opacity="0.3" />
+        </ImageButton.Shadow>
+    </ImageButton>
+
+</ContentView>

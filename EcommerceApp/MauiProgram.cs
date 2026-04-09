@@ -26,6 +26,7 @@ public static class MauiProgram
 
 		builder.Services.AddSingleton<IApiService, RealApiService>();
 		builder.Services.AddSingleton<ICartService, CartService>();
+		builder.Services.AddSingleton<IWhatsAppService, WhatsAppService>();
 		
 		// Views
 		builder.Services.AddTransient<ProductsPage>();

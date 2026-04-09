@@ -2,10 +2,12 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:EcommerceApp.ViewModels"
+             xmlns:controls="clr-namespace:EcommerceApp.Controls"
              x:Class="EcommerceApp.Views.ProfilePage"
              Title="My Profile"
              BackgroundColor="{StaticResource Secondary}">
 
+    <Grid>
     <VerticalStackLayout Padding="30" Spacing="25" VerticalOptions="Center">
         <Border StrokeShape="RoundRectangle 50" HeightRequest="100" WidthRequest="100" 
                 HorizontalOptions="Center" Padding="0">
@@ -35,4 +37,6 @@
                 HeightRequest="44"
                 Margin="0,20,0,0" />
     </VerticalStackLayout>
+    <controls:FloatingWhatsApp />
+    </Grid>
 </ContentPage>

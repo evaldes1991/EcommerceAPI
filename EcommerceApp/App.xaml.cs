@@ -1,3 +1,4 @@
+using EcommerceApp.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EcommerceApp;

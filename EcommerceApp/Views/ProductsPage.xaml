@@ -4,11 +4,12 @@
              xmlns:models="clr-namespace:EcommerceApp.Models"
              xmlns:vm="clr-namespace:EcommerceApp.ViewModels"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:controls="clr-namespace:EcommerceApp.Controls"
              x:Class="EcommerceApp.Views.ProductsPage"
              BackgroundColor="White"
              Title="">
 
-
+    <Grid>
     <RefreshView IsRefreshing="{Binding IsBusy}" Command="{Binding LoadProductsCommand}">
         <ScrollView>
             <VerticalStackLayout Padding="0,0,0,30" Spacing="25">
@@ -153,4 +154,6 @@
             </VerticalStackLayout>
         </ScrollView>
     </RefreshView>
+    <controls:FloatingWhatsApp />
+    </Grid>
 </ContentPage>
