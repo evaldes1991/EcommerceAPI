@@ -34,10 +34,12 @@ public class UploadController : ControllerBase
             await file.CopyToAsync(stream);
         }
 
-        // BaseUrl priority: env var > appsettings > request URL
-        var baseUrl = Environment.GetEnvironmentVariable("BaseUrl")?.TrimEnd('/')
-                      ?? _configuration["BaseUrl"]?.TrimEnd('/')
-                      ?? $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
+        // BaseUrl priority: env var (multiple names) > appsettings > request URL
+        var baseUrl = (Environment.GetEnvironmentVariable("API_BASE_URL")
+                      ?? Environment.GetEnvironmentVariable("BASE_URL")
+                      ?? Environment.GetEnvironmentVariable("BaseUrl")
+                      ?? _configuration["BaseUrl"]
+                      ?? $"{Request.Scheme}://{Request.Host}{Request.PathBase}").TrimEnd('/');
 
         var fileUrl = $"{baseUrl}/uploads/{fileName}";
 
